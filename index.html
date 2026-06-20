@@ -410,18 +410,22 @@ h1 em{background-size:200% auto;animation:shimmer 6s linear infinite}
         <h2>Let's put your brand in orbit.</h2>
         <p>Tell us what you're building. We'll come back with how we'd grow it — usually within a day.</p>
         <div class="contact-channels">
-          <a href="mailto:hello@orbfluence.com" class="chan"><span class="ci">Email</span><span class="cv">hello@orbfluence.com</span></a>
+          <a href="mailto:orbfluence1@gmail.com" class="chan"><span class="ci">Email</span><span class="cv">orbfluence1@gmail.com</span></a>
           <a href="#" class="chan"><span class="ci">Instagram</span><span class="cv">@orbfluence</span></a>
           <a href="#" class="chan"><span class="ci">LinkedIn</span><span class="cv">Orbfluence</span></a>
         </div>
       </div>
       <form id="contactForm" onsubmit="return handleSubmit(event)">
+        <input type="hidden" name="access_key" value="2777bbba-c7c1-4daa-bc7c-3426eb6da4d5">
+        <input type="hidden" name="subject" value="New project enquiry — Orbfluence">
+        <input type="hidden" name="from_name" value="Orbfluence Website">
+        <input type="checkbox" name="botcheck" style="display:none">
         <div class="fld"><label for="name">Your name</label><input type="text" id="name" name="name" required placeholder="Jane Doe"></div>
         <div class="fld"><label for="email">Email</label><input type="email" id="email" name="email" required placeholder="jane@brand.com"></div>
         <div class="fld"><label for="brand">Brand / company</label><input type="text" id="brand" name="brand" placeholder="Your brand"></div>
-        <div class="fld"><label for="msg">What do you need?</label><textarea id="msg" name="msg" required placeholder="Tell us about your brand and goals..."></textarea></div>
-        <button type="submit">Send message →</button>
-        <p class="form-note">We'll get back to you within 24 hours.</p>
+        <div class="fld"><label for="msg">What do you need?</label><textarea id="msg" name="message" required placeholder="Tell us about your brand and goals..."></textarea></div>
+        <button type="submit" id="submitBtn">Send message →</button>
+        <p class="form-note" id="formNote">We'll get back to you within 24 hours.</p>
       </form>
     </div>
   </div>
@@ -437,7 +441,7 @@ h1 em{background-size:200% auto;animation:shimmer 6s linear infinite}
       <div class="foot-social">
         <a href="#">Instagram</a>
         <a href="#">LinkedIn</a>
-        <a href="mailto:hello@orbfluence.com">Email</a>
+        <a href="mailto:orbfluence1@gmail.com">Email</a>
       </div>
       <div class="foot-meta">© 2026 Orbfluence · Thane, India</div>
     </div>
@@ -462,15 +466,37 @@ toggle.addEventListener('click',()=>{
   else{root.setAttribute('data-theme','dark');try{localStorage.setItem('orb-theme','dark')}catch(e){}}
 });
 
-function handleSubmit(e){
+async function handleSubmit(e){
   e.preventDefault();
-  const n=document.getElementById('name').value;
-  const em=document.getElementById('email').value;
-  const b=document.getElementById('brand').value;
-  const m=document.getElementById('msg').value;
-  const subject=encodeURIComponent('New project enquiry — '+(b||n));
-  const body=encodeURIComponent('Name: '+n+'\nEmail: '+em+'\nBrand: '+b+'\n\n'+m);
-  window.location.href='mailto:hello@orbfluence.com?subject='+subject+'&body='+body;
+  const form=document.getElementById('contactForm');
+  const btn=document.getElementById('submitBtn');
+  const note=document.getElementById('formNote');
+  const data=new FormData(form);
+  btn.disabled=true;
+  btn.textContent='Sending...';
+  note.style.color='var(--mute)';
+  note.textContent='Sending your message...';
+  try{
+    const res=await fetch('https://api.web3forms.com/submit',{
+      method:'POST',
+      headers:{'Accept':'application/json'},
+      body:data
+    });
+    const json=await res.json();
+    if(json.success){
+      form.reset();
+      btn.textContent='Sent ✓';
+      note.style.color='#16a34a';
+      note.textContent="Thanks — we'll get back to you within 24 hours.";
+    }else{
+      throw new Error(json.message||'Failed');
+    }
+  }catch(err){
+    btn.disabled=false;
+    btn.textContent='Send message →';
+    note.style.color='#dc2626';
+    note.textContent='Something went wrong. Please email orbfluence1@gmail.com directly.';
+  }
   return false;
 }
 </script>
